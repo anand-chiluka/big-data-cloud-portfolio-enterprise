@@ -1,0 +1,14 @@
+# Stable data engineering libraries used across local examples.
+pyspark==3.5.1
+pyyaml==6.0.2
+pytest==8.2.2
+python-json-logger==2.0.7
+snowflake-connector-python==3.12.3
+snowflake-snowpark-python==1.22.1
+apache-beam[gcp]==2.58.1
+confluent-kafka==2.5.3
+fastavro==1.9.7
+boto3==1.35.24
+azure-storage-blob==12.22.0
+google-cloud-storage==2.18.2
+oci==2.135.0

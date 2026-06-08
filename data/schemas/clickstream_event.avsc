@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "ClickstreamEvent",
+  "namespace": "com.anand.portfolio",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "user_id", "type": "string"},
+    {"name": "event_ts", "type": "string"},
+    {"name": "page", "type": "string"},
+    {"name": "device", "type": "string"},
+    {"name": "campaign", "type": ["null", "string"], "default": null}
+  ]
+}

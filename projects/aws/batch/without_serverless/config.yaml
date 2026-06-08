@@ -1,0 +1,13 @@
+# STAR
+# Situation: Daily order files land in S3 in multiple formats.
+# Task: Parameterize source, target, quality, and partition settings.
+# Action: Keep all runtime values outside the PySpark job.
+# Result: One code path supports dev, stage, and prod with safer deployments.
+cloud: aws
+pipeline: aws_orders_batch_lakehouse
+source_path: s3://example-landing/orders/
+target_path: s3://example-curated/orders_silver/
+quarantine_path: s3://example-quarantine/orders/
+output_format: parquet
+partition_columns: [order_date]
+required_columns: [order_id, customer_id, order_ts, amount, currency, channel]
