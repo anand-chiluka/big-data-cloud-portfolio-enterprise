@@ -1,0 +1,5 @@
+[
+  {"id": "v1", "vendor_name": "VendorA", "region": "US-West", "active": true},
+  {"id": "v2", "vendor_name": "VendorB", "region": "US-East", "active": true},
+  {"id": "v3", "vendor_name": "VendorC", "region": "EU", "active": false}
+]

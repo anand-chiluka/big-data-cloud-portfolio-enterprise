@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_subscription_events
+    description: Cleaned, typed subscription lifecycle events. One row per event.
+    columns:
+      - name: event_id
+        tests:
+          - unique
+          - not_null
+      - name: event_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['created', 'renewed', 'upgraded', 'downgraded', 'canceled']
+      - name: amount_usd
+        tests:
+          - not_null
+
+  - name: stg_customers
+    description: Cleaned customer dimension.
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null

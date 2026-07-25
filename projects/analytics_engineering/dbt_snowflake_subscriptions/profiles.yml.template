@@ -1,0 +1,36 @@
+# This file is a TEMPLATE showing the Snowflake connection shape dbt expects.
+# It intentionally contains no real credentials. Copy this to ~/.dbt/profiles.yml
+# and fill in your own Snowflake account details to run this project live.
+#
+# This project was developed and its models/tests validated via `dbt parse`
+# and `dbt compile` without a live warehouse connection, since no Snowflake
+# account credentials are available in this environment. Every model, test,
+# and macro is syntactically valid dbt/Snowflake SQL and ready to run against
+# a real account once profiles.yml is configured.
+
+subscription_revenue_metrics:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: TRANSFORMER
+      database: ANALYTICS
+      warehouse: TRANSFORMING_WH
+      schema: dbt_dev
+      threads: 4
+      client_session_keep_alive: False
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_SVC_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_SVC_PASSWORD') }}"
+      role: TRANSFORMER_PROD
+      database: ANALYTICS
+      warehouse: TRANSFORMING_WH_PROD
+      schema: analytics
+      threads: 8
+      client_session_keep_alive: False

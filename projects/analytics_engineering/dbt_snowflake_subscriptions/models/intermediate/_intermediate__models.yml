@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: int_subscription_current_state
+    description: >
+      One row per subscription representing its current state as of the
+      latest event. This is the single source of truth for "is this
+      subscription active" and "what is its current MRR" used by every
+      downstream mart.
+    columns:
+      - name: subscription_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: is_active
+        tests:
+          - not_null

@@ -1,0 +1,11 @@
+pytest>=7.4
+pypdf>=5.0
+pyarrow>=14.0
+
+# Optional, only needed if actually connecting to live cloud sinks
+# (not required for the tested LocalSink path or the test suite)
+snowflake-connector-python>=3.6   # SnowflakeSink production path
+boto3>=1.34                        # AWSSink production path
+google-cloud-bigquery>=3.14        # GCPSink production path
+azure-storage-file-datalake>=12.14 # AzureSink production path
+azure-identity>=1.15               # AzureSink production path (auth)

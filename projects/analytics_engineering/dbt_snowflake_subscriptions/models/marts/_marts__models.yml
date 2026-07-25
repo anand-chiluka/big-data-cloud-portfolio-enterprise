@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: mart_customer_mrr
+    description: >
+      Governed, business-facing MRR by customer. This is the single source
+      of truth for "how much recurring revenue does this customer generate"
+      -- every dashboard and report should query this table rather than
+      recomputing MRR logic independently.
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: total_mrr_usd
+        tests:
+          - not_null
+      - name: active_subscription_count
+        tests:
+          - not_null
+
+  - name: mart_company_mrr_summary
+    description: >
+      Single-row, company-wide MRR summary. The canonical answer to
+      "what is our total MRR right now" -- built on top of mart_customer_mrr
+      so the two numbers can never disagree.
+    columns:
+      - name: company_mrr_usd
+        tests:
+          - not_null

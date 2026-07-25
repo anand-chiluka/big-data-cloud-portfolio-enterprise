@@ -1,0 +1,24 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Raw landing zone tables loaded into Snowflake via Snowpipe from S3.
+      These tables are append-only and untransformed; staging models are
+      the first and only place raw column names and types get cleaned up.
+    schema: raw
+    tables:
+      - name: subscription_events
+        description: Raw subscription lifecycle events, one row per event.
+        columns:
+          - name: event_id
+            tests:
+              - unique
+              - not_null
+      - name: customers
+        description: Raw customer dimension data.
+        columns:
+          - name: customer_id
+            tests:
+              - unique
+              - not_null

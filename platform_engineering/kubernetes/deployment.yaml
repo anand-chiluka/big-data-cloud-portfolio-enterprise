@@ -1,0 +1,119 @@
+# Deployment for the always-on streaming risk pipeline consumer.
+#
+# HONESTY NOTE: syntax-reviewed against the standard Kubernetes API
+# (apps/v1 Deployment schema). Not applied against a live cluster in this
+# environment, since no kubectl/cluster access is available here.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-pipeline-consumer
+  namespace: data-platform
+  labels:
+    app: risk-pipeline-consumer
+    tier: streaming
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: risk-pipeline-consumer
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0   # never drop below current capacity during a deploy
+  template:
+    metadata:
+      labels:
+        app: risk-pipeline-consumer
+        tier: streaming
+    spec:
+      serviceAccountName: risk-pipeline-sa
+      containers:
+        - name: risk-pipeline-consumer
+          image: <REGISTRY>/risk-pipeline-consumer:<TAG>
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: risk-pipeline-config
+                  key: kafka_bootstrap_servers
+            - name: SNOWFLAKE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: risk-pipeline-secrets
+                  key: snowflake_account
+            - name: SNOWFLAKE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: risk-pipeline-secrets
+                  key: snowflake_password
+          livenessProbe:
+            exec:
+              command: ["python3", "-c", "import src.consumer"]
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command: ["python3", "-c", "import src.consumer"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+      terminationGracePeriodSeconds: 30   # give in-flight Kafka message processing time to complete on shutdown
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-pipeline-consumer
+  namespace: data-platform
+spec:
+  selector:
+    app: risk-pipeline-consumer
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: metrics
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: risk-pipeline-consumer-hpa
+  namespace: data-platform
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: risk-pipeline-consumer
+  minReplicas: 3
+  maxReplicas: 12
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300   # avoid flapping: wait 5 minutes of sustained low load before scaling down

@@ -1,0 +1,5 @@
+id,product_name,category,price_usd,vendor
+p1,Standing Desk,furniture,349.00,VendorA
+p2,Mechanical Keyboard,electronics,129.00,VendorB
+p3,Office Chair,furniture,219.00,VendorA
+p4,Webcam,electronics,89.00,VendorC

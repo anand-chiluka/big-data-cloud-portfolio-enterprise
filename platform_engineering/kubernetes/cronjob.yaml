@@ -1,0 +1,47 @@
+# CronJob for the scheduled batch connectors (SQL, API, batch file
+# extraction) that don't need to run continuously the way the streaming
+# consumer does. Separate from the Deployment above intentionally: batch
+# and streaming workloads have fundamentally different scaling and
+# failure-handling needs, and forcing them into one deployment pattern
+# usually means compromising both.
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: batch-connector-run
+  namespace: data-platform
+spec:
+  schedule: "*/15 * * * *"   # every 15 minutes, matching the data_freshness SLO defined in observability/src/slo.py
+  concurrencyPolicy: Forbid   # never let two runs overlap if one is still finishing
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600   # kill a stuck run after 10 minutes rather than let it hang until the next scheduled trigger
+      template:
+        spec:
+          serviceAccountName: batch-connector-sa
+          restartPolicy: OnFailure
+          containers:
+            - name: batch-connector-run
+              image: <REGISTRY>/batch-connector-run:<TAG>
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "512Mi"
+                limits:
+                  cpu: "2000m"
+                  memory: "2Gi"
+              env:
+                - name: RUN_MODE
+                  value: "scheduled_batch"
+                - name: SNOWFLAKE_ACCOUNT
+                  valueFrom:
+                    secretKeyRef:
+                      name: risk-pipeline-secrets
+                      key: snowflake_account
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
+                readOnlyRootFilesystem: true

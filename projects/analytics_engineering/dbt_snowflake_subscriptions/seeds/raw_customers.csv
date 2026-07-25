@@ -1,0 +1,7 @@
+customer_id,signup_date,country,acquisition_channel
+cust_501,2025-11-01,US,organic
+cust_502,2025-12-15,GB,paid_search
+cust_503,2026-01-02,US,referral
+cust_504,2026-01-20,CA,paid_social
+cust_505,2026-02-10,US,organic
+cust_506,2026-02-28,IN,paid_search
